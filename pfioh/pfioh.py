@@ -1,41 +1,11 @@
 #!/usr/bin/env python3.5
 
-str_desc = """
-        __ _       _
-       / _(_)     | |
- _ __ | |_ _  ___ | |__
-| '_ \|  _| |/ _ \| '_ \\
-| |_) | | | | (_) | | | |
-| .__/|_| |_|\___/|_| |_|
-| |
-|_|
-
-
-
-                         A simple http file IO handler
-
-    `pfioh' is a simple http-based file I/O handler/server allowing software
-    agents to perform useful file transfers over http.
-
-    `pfioh' handles HTTP REST-like requests on a given port -- it can accept
-    incoming file data from a client, and can also return server-side file trees
-    to a client.
-
-    `pfioh' can also zip up/unzip file trees so that entire paths can be easily
-    transferred.
-
-"""
-
-import  os
 import  sys
 
 from    io              import BytesIO as IO
 from    http.server     import BaseHTTPRequestHandler, HTTPServer
 from    socketserver    import ThreadingMixIn
-import  socket
-import  argparse
 import  cgi
-import  zipfile
 import  json
 import  base64
 import  zipfile
@@ -45,7 +15,13 @@ import  ast
 import  shutil
 import  datetime
 
-# pman local dependencies
+import  platform
+import  socket
+import  psutil
+import  os
+import  multiprocessing
+
+# pfioh local dependencies
 from    ._colors        import Colors
 from    .debug          import debug
 
@@ -56,7 +32,13 @@ class StoreHandler(BaseHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         """
         """
-        BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
+        b_test  = False
+
+        for k,v in kwargs.items():
+            if k == 'test': b_test  = True
+
+        if not b_test:
+            BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
     def qprint(self, msg, **kwargs):
 
@@ -95,9 +77,7 @@ class StoreHandler(BaseHTTPRequestHandler):
             'isdir':   b_isDir
         }
 
-
         self.ret_client(d_ret)
-
         self.qprint(d_ret, comms = 'tx')
 
         return {'status': b_exists}
@@ -111,7 +91,7 @@ class StoreHandler(BaseHTTPRequestHandler):
 
         # d_msg               = ast.literal_eval(d_server)
         d_meta              = d_msg['meta']
-        d_local             = d_meta['local']
+        # d_local             = d_meta['local']
         d_remote            = d_meta['remote']
         d_transport         = d_meta['transport']
         d_compress          = d_transport['compress']
@@ -121,7 +101,7 @@ class StoreHandler(BaseHTTPRequestHandler):
         str_fileToProcess   = str_serverPath
 
         b_cleanup           = False
-        b_zip               = True
+        # b_zip               = True
 
         str_encoding        = 'base64'
 
@@ -132,7 +112,7 @@ class StoreHandler(BaseHTTPRequestHandler):
         else:                       b_zip = False
         if os.path.isdir(str_serverPath):
             b_zip           = True
-            str_archive    = 'zip'
+            # str_archive    = 'zip'
 
         # If specified (or if the target is a directory), create zip archive
         # of the local path
@@ -207,7 +187,6 @@ class StoreHandler(BaseHTTPRequestHandler):
                 self.qprint("Removing '%s'..." % (str_base64File), comms = 'status')
                 if os.path.isfile(str_base64File):  os.remove(str_base64File)
 
-
         self.ret_client(d_ret)
         self.qprint(d_ret, comms = 'tx')
 
@@ -228,10 +207,11 @@ class StoreHandler(BaseHTTPRequestHandler):
 
         str_serverPath      = d_remote['path']
         str_clientPath      = d_local['path']
-        str_fileToProcess   = str_serverPath
+        # str_fileToProcess   = str_serverPath
 
         b_copyTree          = False
         b_copyFile          = False
+        b_symlink           = False
 
         d_ret               = {}
         d_ret['status']     = True
@@ -306,7 +286,7 @@ class StoreHandler(BaseHTTPRequestHandler):
         """
         return cgi.FieldStorage(
             IO(data),
-            headers =   self.headers,
+            headers = self.headers,
             environ =
             {
                 'REQUEST_METHOD':   str_verb,
@@ -314,28 +294,106 @@ class StoreHandler(BaseHTTPRequestHandler):
             }
         )
 
-    def do_POST(self):
+    def hello_process(self, *args, **kwargs):
+        """
 
-        # Parse the form data posted
+        The 'hello' action is merely to 'speak' with the server. The server
+        can return current date/time, echo back a string, query the startup
+        command line args, etc.
 
-        self.qprint(str(self.headers), comms = 'rx')
+        This method is a simple means of checking if the server is "up" and
+        running.
 
-        length              = self.headers['content-length']
-        data                = self.rfile.read(int(length))
-        form                = self.form_get('POST', data)
-        d_form              = {}
-        d_ret               = {
-            'msg':      'In do_POST',
-            'status':   True,
-            'formsize': sys.getsizeof(form)
-        }
+        :param args:
+        :param kwargs:
+        :return:
+        """
 
-        for key in form:
-            d_form[key]     = form.getvalue(key)
+        self.qprint("hello_process()", comms = 'status')
+        b_status            = False
+        d_ret               = {}
+        d_request           = {}
+        for k, v in kwargs.items():
+            if k == 'request':      d_request   = v
 
-        # d_msg               = json.loads(ast.literal_eval(d_form['d_msg']))
-        d_msg               = json.loads((d_form['d_msg']))
+        d_meta  = d_request['meta']
+        if 'askAbout' in d_meta.keys():
+            str_askAbout    = d_meta['askAbout']
+            if str_askAbout == 'timestamp':
+                str_timeStamp   = datetime.datetime.today().strftime('%Y%m%d%H%M%S.%f')
+                d_ret['timestamp']              = {}
+                d_ret['timestamp']['now']       = str_timeStamp
+                b_status                        = True
+            if str_askAbout == 'sysinfo':
+                d_ret['sysinfo']                = {}
+                d_ret['sysinfo']['system']      = platform.system()
+                d_ret['sysinfo']['machine']     = platform.machine()
+                d_ret['sysinfo']['platform']    = platform.platform()
+                d_ret['sysinfo']['uname']       = platform.uname()
+                d_ret['sysinfo']['version']     = platform.version()
+                d_ret['sysinfo']['memory']      = psutil.virtual_memory()
+                d_ret['sysinfo']['cpucount']    = multiprocessing.cpu_count()
+                d_ret['sysinfo']['loadavg']     = os.getloadavg()
+                d_ret['sysinfo']['cpu_percent'] = psutil.cpu_percent()
+                d_ret['sysinfo']['hostname']    = socket.gethostname()
+                b_status                        = True
+            if str_askAbout == 'echoBack':
+                d_ret['echoBack']               = {}
+                d_ret['echoBack']['msg']        = d_meta['echoBack']
+                b_status                        = True
+
+        return { 'd_ret':   d_ret,
+                 'status':  b_status}
+
+    def do_POST(self, **kwargs):
+
+        b_skipInit  = False
+        d_msg       = {}
+        for k,v in kwargs.items():
+            if k == 'd_msg':
+                d_msg       = v
+                b_skipInit  = True
+
+        if not b_skipInit:
+            # Parse the form data posted
+            self.qprint(str(self.headers), comms = 'rx')
+
+            length              = self.headers['content-length']
+            data                = self.rfile.read(int(length))
+            form                = self.form_get('POST', data)
+            d_form              = {}
+            d_ret               = {
+                'msg':      'In do_POST',
+                'status':   True,
+                'formsize': sys.getsizeof(form)
+            }
+
+            self.qprint('data length = %d' % len(data),   comms = 'status')
+            self.qprint('form length = %d' % len(d_form), comms = 'status')
+
+            if len(d_form):
+                for key in form:
+                    d_form[key]     = form.getvalue(key)
+
+                d_msg               = json.loads((d_form['d_msg']))
+            else:
+                d_data              = json.loads(data.decode())
+                d_msg               = d_data['payload']
+
+        self.qprint('d_msg = %s' % d_msg, comms = 'status')
         d_meta              = d_msg['meta']
+
+        if 'action' in d_msg:
+            self.qprint("verb: %s detected." % d_msg['action'], comms = 'status')
+            str_method      = '%s_process' % d_msg['action']
+            d_done          = {'status': False}
+            try:
+                method      = getattr(self, str_method)
+                d_done      = method(request = d_msg)
+            except  AttributeError:
+                raise NotImplementedError("Class `{}` does not implement `{}`".format(self.__class__.__name__, method))
+            self.qprint(d_done, comms = 'tx')
+            d_ret = d_done
 
         if 'ctl' in d_meta:
             self.do_POST_serverctl(d_meta)
@@ -352,7 +410,7 @@ class StoreHandler(BaseHTTPRequestHandler):
             if 'copy' in d_transport:
                 d_ret   = self.do_POST_withCopy(d_meta)
 
-        self.ret_client(d_ret)
+        if not b_skipInit: self.ret_client(d_ret)
         return d_ret
 
     def do_POST_serverctl(self, d_meta):
@@ -387,7 +445,7 @@ class StoreHandler(BaseHTTPRequestHandler):
 
         str_serverPath      = d_remote['path']
         str_clientPath      = d_local['path']
-        str_fileToProcess   = str_serverPath
+        # str_fileToProcess   = str_serverPath
 
         b_copyTree          = False
         b_copyFile          = False
@@ -436,18 +494,17 @@ class StoreHandler(BaseHTTPRequestHandler):
         self.qprint(str(self.headers),              comms = 'rx')
         self.qprint('do_POST_withCompression()',    comms = 'status')
 
-        data    = None
-        length  = 0
-        form    = None
+        # data    = None
+        # length  = 0
+        # form    = None
         d_form  = {}
         d_ret   = {}
 
         for k,v in kwargs.items():
-            if k == 'data':     data    = v
-            if k == 'length':   length  = v
-            if k == 'form':     form    = v
+            # if k == 'data':     data    = v
+            # if k == 'length':   length  = v
+            # if k == 'form':     form    = v
             if k == 'd_form':   d_form  = v
-
 
         d_msg               = json.loads((d_form['d_msg']))
         d_meta              = d_msg['meta']
@@ -557,15 +614,19 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 
         self.dp             = debug(verbosity=0, level=-1)
 
-        for k,v in kwargs.items():
-            if k == 'args': self.args   = v
+        self.str_desc       = 'pfioh\n\n'
 
-        print(Colors.LIGHT_CYAN + str_desc)
+        for k,v in kwargs.items():
+            if k == 'args': self.args       = v
+            if k == 'desc': self.str_desc   = v
+
+        print(Colors.LIGHT_CYAN + self.str_desc)
 
         self.col2_print("Listening on address:",    self.args['ip'])
         self.col2_print("Listening on port:",       self.args['port'])
         self.col2_print("Server listen forever:",   self.args['b_forever'])
         print(Colors.LIGHT_GREEN + "\n\n\tWaiting for incoming data..." + Colors.NO_COLOUR)
+
 
 def zipdir(path, ziph, **kwargs):
     """
@@ -591,6 +652,7 @@ def zipdir(path, ziph, **kwargs):
                 ziph.write(str_arcfile, arcname = str_arcname)
             except:
                 print("Skipping %s" % str_arcfile)
+
 
 def zip_process(**kwargs):
     """
@@ -646,12 +708,14 @@ def zip_process(**kwargs):
         'filesize':         "{:,}".format(os.stat(str_zipFileName).st_size)
     }
 
+
 def base64_process(**kwargs):
     """
     Process base64 file io
     """
 
     str_fileToSave      = ""
+    str_fileToRead      = ""
     str_action          = "encode"
     data                = None
 
@@ -660,7 +724,7 @@ def base64_process(**kwargs):
         if k == 'payloadBytes':     data                = v
         if k == 'payloadFile':      str_fileToRead      = v
         if k == 'saveToFile':       str_fileToSave      = v
-        if k == 'sourcePath':       str_sourcePath      = v
+        # if k == 'sourcePath':       str_sourcePath      = v
 
     if str_action       == "encode":
         # Encode the contents of the file at targetPath as ASCII for transmission
