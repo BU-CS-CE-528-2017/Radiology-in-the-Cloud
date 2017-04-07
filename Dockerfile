@@ -7,11 +7,11 @@
 #
 # For example if building a local version, you could do:
 #
-#   docker build -t local/pman .
+#   docker build -t local/pfioh .
 #
 # In the case of a proxy (located at 192.168.13.14:3128), do:
 #
-#    docker build --build-arg http_proxy=http://192.168.13.14:3128 -t local/pman .
+#    docker build --build-arg http_proxy=http://192.168.13.14:3128 -t local/pfioh .
 #
 
 FROM fnndsc/ubuntu-python3:latest
@@ -19,8 +19,8 @@ MAINTAINER fnndsc "dev@babymri.org"
 
 RUN apt-get update \
   && apt-get install -y libssl-dev libcurl4-openssl-dev bsdmainutils \
-  && pip3 install pfion==0.13.0
+  && pip3 install pfioh==0.13.0
 
 COPY ./docker-entrypoint.py /dock/docker-entrypoint.py
-ENTRYPOINT ["/root/docker-entrypoint.py"]
-EXPOSE 5010 5055
+ENTRYPOINT ["/dock/docker-entrypoint.py"]
+EXPOSE 5055

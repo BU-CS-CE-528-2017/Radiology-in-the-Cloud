@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-G_CONTAINER="fnndsc/pman"
+G_CONTAINER="fnndsc/pfioh"
 
 G_SYNOPSIS="
 
@@ -44,6 +44,6 @@ done
 shift $(($OPTIND - 1))
 PFIOHARGS=$*
 
-CMD="docker run --name pfioh -p 5055:5055 -v /home:/Users --rm -ti $G_CONTAINER pfioh $PFIOHARGS"
+CMD="docker run --name pfioh -p 5055:5055 -v /home:/Users --rm -ti $G_CONTAINER $PFIOHARGS"
 echo "$CMD"
 eval $CMD

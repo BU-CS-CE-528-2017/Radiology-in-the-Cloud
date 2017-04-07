@@ -1,5 +1,5 @@
 ##############
-pfioh - v0.13.0
+pfioh - v0.13.1
 ##############
 
 .. image:: https://badge.fury.io/py/pman.svg
@@ -89,27 +89,27 @@ This docker has an entry point ``python3``. To enter the dock at a different ent
 
    docker run -ti --entrypoint /bin/bash fnndsc/ubuntu-python3
    
-Now, install ``pman`` and friends using ``pip``
+Now, install ``pfioh`` and friends using ``pip``
 
 .. code-block:: bash
 
    apt update && \
    apt install -y libssl-dev libcurl4-openssl-dev librtmp-dev && \
-   pip install pman
+   pip install pfioh
    
 **If you do the above, remember to** ``commit`` **your changes to the docker image otherwise they'll be lost when you remove the dock instance!**
 
 .. code-block:: bash
 
-  docker commit <container-ID> local/ubuntu-python3-pman
+  docker commit <container-ID> local/pfioh
   
  where ``<container-ID>`` is the ID of the above container.
   
 
-Using the ``fnndsc/pman`` dock
+Using the ``fnndsc/pfioh`` dock
 ==============================
 
-The easiest option however, is to just use the ``fnndsc/pman`` dock.
+The easiest option however, is to just use the ``fnndsc/pfioh`` dock.
 
 .. code-block:: bash
 
