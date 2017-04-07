@@ -10,18 +10,18 @@ def readme():
         return f.read()
 
 setup(
-      name             =   'pman',
-      version          =   '0.12.7',
-      description      =   '(Python) Process Manager',
+      name             =   'pfioh',
+      version          =   '0.13.0',
+      description      =   'Path-and-File-IO-over-HTTP',
       long_description =   readme(),
       author           =   'Rudolph Pienaar',
       author_email     =   'rudolph.pienaar@gmail.com',
       url              =   'https://github.com/FNNDSC/pman',
-      packages         =   ['pman'],
+      packages         =   ['pfioh'],
       install_requires =   ['pycurl', 'pyzmq', 'webob', 'pudb', 'psutil'],
       test_suite       =   'nose.collector',
       tests_require    =   ['nose'],
-      scripts          =   ['bin/crunner', 'bin/pfioh', 'bin/pman', 'bin/purl', 'bin/snode'],
+      scripts          =   ['bin/pfioh'],
       license          =   'MIT',
       zip_safe         =   False
      )
