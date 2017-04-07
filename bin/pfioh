@@ -1,17 +1,24 @@
 #!/usr/bin/env python3
 #
-# (c) 2016 Fetal-Neonatal Neuroimaging & Developmental Science Center
+# (c) 2017 Fetal-Neonatal Neuroimaging & Developmental Science Center
 #                   Boston Children's Hospital
 #
 #              http://childrenshospital.org/FNNDSC/
 #                        dev@babyMRI.org
 #
 
-import sys, os
+import sys
+import os
+
+
+from    argparse import RawTextHelpFormatter
+from    argparse import ArgumentParser
+import  socket
+import  pfioh
+
+str_version = "0.13.0"
+
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '..'))
-
-import argparse, socket, os, pman
-
 str_defIP = [l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][:1], [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close()) for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0]
 
 str_desc = """
@@ -25,29 +32,35 @@ str_desc = """
 |_|
 
 
+                            Path-File-IO-over-HTTP
 
-                         A simple http file IO handler
+           A simple IO handler that pushes/pulls file paths over http
 
-    `pfioh' is a simple http-based file I/O handler/server allowing software
-    agents to perform useful file transfers over http.
+                              -- version %s --
 
-    `pfioh' handles HTTP REST-like requests on a given port -- it can accept
+    'pfioh' is a file/dir transfer tool, akin conceptually to 'ftp' or 'scp'.
+    that allows software agents to perform useful file transfers over http.
+
+    'pfioh' handles HTTP REST-like requests on a given port -- it can accept
     incoming file data from a client, and can also return server-side file trees
     to a client.
 
-    `pfioh' can also zip up/unzip file trees so that entire paths can be easily
+    'pfioh' can also zip up/unzip file trees so that entire paths can be easily
     transferred.
+    
+                Note critically that 'pfioh' does not authenticate!
 
-"""
 
-parser  = argparse.ArgumentParser(description = str_desc)
+""" % str_version
+
+parser  = ArgumentParser(description = str_desc, formatter_class = RawTextHelpFormatter)
 
 parser.add_argument(
     '--ip',
     action  = 'store',
     dest    = 'ip',
     default = str_defIP,
-    help    = 'IP to connect.'
+    help    = 'IP to expose.'
 )
 parser.add_argument(
     '--port',
@@ -57,9 +70,9 @@ parser.add_argument(
     help    = 'Port to use.'
 )
 parser.add_argument(
-    '--quiet',
-    help    = 'if specified, only echo JSON output from server response',
-    dest    = 'b_quiet',
+    '--version',
+    help    = 'if specified, print version number',
+    dest    = 'b_version',
     action  = 'store_true',
     default = False
 )
@@ -77,15 +90,38 @@ parser.add_argument(
     action  = 'store_true',
     default = False
 )
+parser.add_argument(
+    '--test',
+    help    = 'if specified, perform internal tests',
+    dest    = 'b_test',
+    action  = 'store_true',
+    default = False
+)
 
 args            = parser.parse_args()
 args.port       = int(args.port)
 
-# print(vars(args))
-server          = pman.ThreadedHTTPServer((args.ip, args.port), pman.StoreHandler)
-server.setup(args = vars(args))
+if args.b_version:
+    print("Version: %s" % str_version)
+    sys.exit(1)
 
-if args.b_forever:
+server          = pfioh.ThreadedHTTPServer((args.ip, args.port), pfioh.StoreHandler)
+server.setup(args = vars(args), desc = str_desc)
+
+if args.b_test:
+    handler     = pfioh.StoreHandler(test = True)
+    handler.do_POST(
+        d_msg = {
+            "action": "hello",
+            "meta": {
+                "askAbout":     "sysinfo",
+                "echoBack":     "Hi there!"
+                }
+            }
+    )
+    sys.exit(0)
+
+if args.b_forever and not args.b_test:
     server.serve_forever()
 else:
     server.handle_request()
