@@ -17,7 +17,8 @@ G_SYNOPSIS="
 
  DESCRIPTION
 
-	pypi.sh is a simple helper script to tag and upload a new version of pypi.sh 
+	pypi.sh is a simple helper script to tag and upload a new version of the pfioh build
+	to PyPI.
 
 
 "
