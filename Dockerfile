@@ -22,5 +22,6 @@ RUN apt-get update \
   && pip3 install pfioh==0.13.1
 
 COPY ./docker-entrypoint.py /dock/docker-entrypoint.py
+RUN chmod 777 /dock && chmod 777 /dock/docker-entrypoint.py
 ENTRYPOINT ["/dock/docker-entrypoint.py"]
 EXPOSE 5055
