@@ -64,11 +64,6 @@ def pfioh_do(args, unknown):
 parser  = argparse.ArgumentParser(description = str_desc)
 
 # parser.add_argument(
-#     'app',
-#     nargs   = '?',
-#     default = 'pman'
-# )
-# parser.add_argument(
 #     '--pman',
 #     action  = 'store_true',
 #     dest    = 'b_pman',
