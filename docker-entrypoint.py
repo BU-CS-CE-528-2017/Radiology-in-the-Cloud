@@ -85,14 +85,6 @@ parser.add_argument(
     help    = 'JSON msg payload'
 )
 
-# Pattern of minimum required purl args
-# parser.add_argument(
-#     '--verb',
-#     action  = 'store',
-#     dest    = 'verb',
-#     default = 'POST',
-#     help    = 'REST verb.'
-# )
 # parser.add_argument(
 #     '--jsonwrapper',
 #     action  = 'store',
