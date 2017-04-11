@@ -7,14 +7,12 @@
 #                        dev@babyMRI.org
 #
 
-import sys
-import os
-
-
-from    argparse import RawTextHelpFormatter
-from    argparse import ArgumentParser
+import  sys
+import  os
 import  socket
 import  pfioh
+from    argparse import RawTextHelpFormatter
+from    argparse import ArgumentParser
 
 str_version = "0.13.1"
 
