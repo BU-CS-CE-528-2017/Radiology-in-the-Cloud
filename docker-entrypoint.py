@@ -27,44 +27,6 @@ str_desc = """
 
 """
 
-# def http_construct(args, unknown):
-#     """
-#     Construct the --http <arg> from the args/unknown space -- relevant only for 'purl'.
-#
-#     :param args:
-#     :param unknown:
-#     :return:
-#     """
-#
-#     str_http    = ''
-#     b_httpSpecd = False
-#
-#     if '--http' in unknown:
-#         try:
-#             str_httpArg = unknown[unknown.index('--http')+1]
-#             unknown.remove('--http')
-#             unknown.remove(str_httpArg)
-#         except:
-#             str_httpArg = ""
-#         str_http    = '--http %s' % str_httpArg
-#         b_httpSpecd = True
-#
-#     if not b_httpSpecd:
-#         str_serverIP  = "172.17.0.2"
-#         str_serverPort  = '5010'
-#         try:
-#             if args.b_pman:
-#                 str_serverIP    = os.environ['PMAN_PORT_5010_TCP_ADDR']
-#                 str_serverPort  = os.environ['PMAN_PORT_5010_TCP_PORT']
-#             if args.b_pfioh:
-#                 str_serverIP    = os.environ['PFIOH_PORT_5055_TCP_ADDR']
-#                 str_serverPort  = os.environ['PFIOH_PORT_5055_TCP_PORT']
-#         except:
-#             pass
-#         str_http    = '--http %s:%s/api/v1/cmd/' % (str_serverIP, str_serverPort)
-#
-#     return str_http
-
 # def pman_do(args, unknown):
 #
 #     str_otherArgs   = ' '.join(unknown)
@@ -102,11 +64,6 @@ def pfioh_do(args, unknown):
 parser  = argparse.ArgumentParser(description = str_desc)
 
 # parser.add_argument(
-#     'app',
-#     nargs   = '?',
-#     default = 'pman'
-# )
-# parser.add_argument(
 #     '--pman',
 #     action  = 'store_true',
 #     dest    = 'b_pman',
@@ -128,14 +85,6 @@ parser.add_argument(
     help    = 'JSON msg payload'
 )
 
-# Pattern of minimum required purl args
-# parser.add_argument(
-#     '--verb',
-#     action  = 'store',
-#     dest    = 'verb',
-#     default = 'POST',
-#     help    = 'REST verb.'
-# )
 # parser.add_argument(
 #     '--jsonwrapper',
 #     action  = 'store',
