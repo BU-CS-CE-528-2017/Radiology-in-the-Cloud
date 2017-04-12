@@ -620,7 +620,7 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
             if k == 'args': self.args       = v
             if k == 'desc': self.str_desc   = v
 
-        print(Colors.LIGHT_CYAN + self.str_desc)
+        print(self.str_desc)
 
         self.col2_print("Listening on address:",    self.args['ip'])
         self.col2_print("Listening on port:",       self.args['port'])
