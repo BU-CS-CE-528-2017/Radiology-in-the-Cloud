@@ -22,8 +22,8 @@ import  os
 import  multiprocessing
 
 # pfioh local dependencies
-from    ._colors        import Colors
-from    .debug          import debug
+from    _colors        import Colors
+from    debug          import debug
 
 class StoreHandler(BaseHTTPRequestHandler):
 

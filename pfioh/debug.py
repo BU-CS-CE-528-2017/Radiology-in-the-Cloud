@@ -4,8 +4,8 @@ import  threading
 import  inspect
 import  logging
 
-# pman local dependencies
-from   .message           import Message
+# pfioh local dependencies
+from    message         import Message
 
 logging.basicConfig(level=logging.DEBUG,
                     format='(%(threadName)-10s) %(message)s')
