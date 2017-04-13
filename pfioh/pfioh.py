@@ -2,9 +2,10 @@
 
 import  sys
 
-from    io              import BytesIO as IO
-from    http.server     import BaseHTTPRequestHandler, HTTPServer
-from    socketserver    import ThreadingMixIn
+from    io              import  BytesIO as IO
+from    http.server     import  BaseHTTPRequestHandler, HTTPServer
+from    socketserver    import  ThreadingMixIn
+from    webob           import  Response
 import  cgi
 import  json
 import  base64
@@ -29,6 +30,8 @@ except:
     from    _colors         import Colors
     from    debug           import debug
 
+# Horrible global var
+G_b_httpResponse            = False
 
 class StoreHandler(BaseHTTPRequestHandler):
 
@@ -594,7 +597,10 @@ class StoreHandler(BaseHTTPRequestHandler):
         :param d_ret:
         :return:
         """
-        self.wfile.write(json.dumps(d_ret).encode())
+        if not G_b_httpResponse:
+            self.wfile.write(json.dumps(d_ret).encode())
+        else:
+            self.wfile.write(str(Response(json.dumps(d_ret))).encode())
 
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
@@ -609,6 +615,8 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
               ('%*s' % (self.RC, str_right)) + Colors.NO_COLOUR)
 
     def setup(self, **kwargs):
+        global G_b_httpResponse
+
         self.str_fileBase   = "received-"
         self.LC             = 40
         self.RC             = 40
@@ -625,11 +633,14 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
             if k == 'args': self.args       = v
             if k == 'desc': self.str_desc   = v
 
+        G_b_httpResponse = self.args['b_httpResponse']
         print(self.str_desc)
 
         self.col2_print("Listening on address:",    self.args['ip'])
         self.col2_print("Listening on port:",       self.args['port'])
         self.col2_print("Server listen forever:",   self.args['b_forever'])
+        self.col2_print("Return HTTP responses:",   G_b_httpResponse)
+
         print(Colors.LIGHT_GREEN + "\n\n\tWaiting for incoming data..." + Colors.NO_COLOUR)
 
 
