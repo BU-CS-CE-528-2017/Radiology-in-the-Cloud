@@ -1,5 +1,5 @@
 ##############
-pfioh - v1.0.5
+pfioh - v1.0.6
 ##############
 
 .. image:: https://badge.fury.io/py/pman.svg
@@ -107,7 +107,7 @@ Now, install ``pfioh`` and friends using ``pip``
   
 
 Using the ``fnndsc/pfioh`` dock
-==============================
+===============================
 
 The easiest option however, is to just use the ``fnndsc/pfioh`` dock.
 
