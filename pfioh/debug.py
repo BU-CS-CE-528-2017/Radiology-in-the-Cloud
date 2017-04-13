@@ -5,7 +5,10 @@ import  inspect
 import  logging
 
 # pfioh local dependencies
-from    message         import Message
+try:
+    from    .message        import Message
+except:
+    from    message         import Message
 
 logging.basicConfig(level=logging.DEBUG,
                     format='(%(threadName)-10s) %(message)s')
