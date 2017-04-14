@@ -38,6 +38,13 @@ class TestPfioh(TestCase):
             action  = 'store_true',
             default = False
         )
+        parser.add_argument(
+            '--httpResponse',
+            help    = 'if specified, return HTTP responses',
+            dest    = 'b_httpResponse',
+            action  = 'store_true',
+            default = False
+        )
 
         args            = parser.parse_args()
         args.port       = int(args.port)
