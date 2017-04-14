@@ -377,14 +377,16 @@ class StoreHandler(BaseHTTPRequestHandler):
             }
 
             self.qprint('data length = %d' % len(data),   comms = 'status')
-            self.qprint('form length = %d' % len(d_form), comms = 'status')
+            self.qprint('form length = %d' % len(form), comms = 'status')
 
-            if len(d_form):
+            if len(form):
+                self.qprint("Unpacking multi-part form message...", comms = 'status')
                 for key in form:
+                    self.qprint("\tUnpacking field '%s..." % key, comms = 'status')
                     d_form[key]     = form.getvalue(key)
-
                 d_msg               = json.loads((d_form['d_msg']))
             else:
+                self.qprint("Parsing JSON data...", comms = 'status')
                 d_data              = json.loads(data.decode())
                 d_msg               = d_data['payload']
 
@@ -393,15 +395,17 @@ class StoreHandler(BaseHTTPRequestHandler):
 
         if 'action' in d_msg:
             self.qprint("verb: %s detected." % d_msg['action'], comms = 'status')
-            str_method      = '%s_process' % d_msg['action']
-            d_done          = {'status': False}
-            try:
-                method      = getattr(self, str_method)
-                d_done      = method(request = d_msg)
-            except  AttributeError:
-                raise NotImplementedError("Class `{}` does not implement `{}`".format(self.__class__.__name__, method))
-            self.qprint(d_done, comms = 'tx')
-            d_ret = d_done
+            if 'Path' not in d_msg['action']:
+                str_method      = '%s_process' % d_msg['action']
+                self.qprint("method to call: %s(request = d_msg) " % str_method, comms = 'status')
+                d_done          = {'status': False}
+                try:
+                    method      = getattr(self, str_method)
+                    d_done      = method(request = d_msg)
+                except  AttributeError:
+                    raise NotImplementedError("Class `{}` does not implement `{}`".format(self.__class__.__name__, method))
+                self.qprint(d_done, comms = 'tx')
+                d_ret = d_done
 
         if 'ctl' in d_meta:
             self.do_POST_serverctl(d_meta)
