@@ -13,28 +13,28 @@ route="pfioh-radiology-in-the-cloud.128.31.26.63.xip.io"
 jobid=$userid-$(openssl rand -hex 12)
 imageid="172.30.249.2:5000/radiology-in-the-cloud/sample-plugin"
 
-#Do pfurly things
 #pushpath
+: '
 pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
-"{'action': 'pushPath',
-    'meta': {
-        'remote': {
-            'path':         '/shared/$jobid'
+"{\"action\": \"pushPath\",
+    \"meta\": {
+        \"remote\": {
+            \"path\":         \"/shared/$jobid\"
         },
-        'local': {
-            'path':         '$userdata'
+        \"local\": {
+            \"path\":         \"$userdata\"
         },
-        'transport': {
-            'mechanism':    'compress',
-            'compress': {
-                'encoding': 'base64',
-                'archive':  'zip',
-                'unpack':   true,
-                'cleanup':  true
+        \"transport\": {
+            \"mechanism\":    \"compress\",
+            \"compress\": {
+                \"encoding\": \"base64\",
+                \"archive\":  \"zip\",
+                \"unpack\":   true,
+                \"cleanup\":  true
             }
      }
-}" --quiet --jsonprintindent 4
-
+}" --quiet --jsonpprintindent 4
+'
 
 #Start job
 #Create persistent volume, persistent volume claim, job object
@@ -88,25 +88,29 @@ numfailed=$(oc get job $imageid -o jsonpath='{.status.failed}')
 if ((numsucceeded>0)); then
     #Download job results from purl/pfioh
     #pullpath
-    pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
-    "{'action': 'pullPath',
-        'meta': {
-            'remote': {
-                'path':         '/shared/$jobid'
-            },
-            'local': {
-                'path':         '$userdata'
-            },
-            'transport': {
-                'mechanism':    'compress',
-                'compress': {
-                    'encoding': 'base64',
-                    'archive':  'zip',
-                    'unpack':   true,
-                    'cleanup':  true
-                }
-         }
-    }" --quiet --jsonprintindent 4
+   #Do pfurly things
+#pushpath
+: '
+pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
+"{\"action\": \"pullPath\",
+    \"meta\": {
+        \"remote\": {
+            \"path\":         \"/shared/$jobid\"
+        },
+        \"local\": {
+            \"path\":         \"$userdata\"
+        },
+        \"transport\": {
+            \"mechanism\":    \"compress\",
+            \"compress\": {
+                \"encoding\": \"base64\",
+                \"archive\":  \"zip\",
+                \"unpack\":   true,
+                \"cleanup\":  true
+            }
+     }
+}" --quiet --jsonpprintindent 4
+'
 fi
 
 #Cleanup files
