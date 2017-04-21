@@ -1,5 +1,5 @@
 #!/bin/bash
-export KUBECONFIG=~/sa-kubeconfig
+export KUBECONFIG=~/sa-kubeconfig.yaml
  
 #Fail if any line breaks
 set -e 
@@ -54,7 +54,7 @@ spec:
     persistentVolumeReclaimPolicy: Retain
 EOF
 
-oc create -f - <<EOF
+oc create --namespace radiology-in-the-cloud -f - <<EOF
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
