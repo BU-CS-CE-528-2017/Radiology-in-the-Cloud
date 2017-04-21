@@ -1,5 +1,5 @@
 #!/bin/bash
-export KUBECONFIG=~/sa-KUBECONFIG
+export KUBECONFIG=~/sa-kubeconfig
  
 #Fail if any line breaks
 set -e 
@@ -14,6 +14,7 @@ route="pfioh-radiology-in-the-cloud.128.31.26.63.xip.io"
 jobid=$userid-$(openssl rand -hex 12)
 imageid="172.30.249.2:5000/radiology-in-the-cloud/sample-plugin"
 
+if false; then
 #pushpath
 pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
 "{\"action\": \"pushPath\",
@@ -34,7 +35,7 @@ pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
             }
      }
 }" --quiet --jsonpprintindent 4
-
+fi
 #Start job
 #Create persistent volume, persistent volume claim, job object
 oc create -f - <<EOF 
@@ -87,6 +88,7 @@ numfailed=$(oc get job $imageid -o jsonpath='{.status.failed}')
 if ((numsucceeded>0)); then
 #Download job results from purl/pfioh
 #pullpath
+if false; then
 pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
 "{\"action\": \"pullPath\",
     \"meta\": {
@@ -106,7 +108,7 @@ pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
             }
      }
 }" --quiet --jsonpprintindent 4
-
+fi
 fi
 
 #Cleanup files
