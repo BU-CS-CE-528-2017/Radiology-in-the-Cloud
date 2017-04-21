@@ -14,7 +14,6 @@ jobid=$userid-$(openssl rand -hex 12)
 imageid="172.30.249.2:5000/radiology-in-the-cloud/sample-plugin"
 
 #pushpath
-: '
 pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
 "{\"action\": \"pushPath\",
     \"meta\": {
@@ -34,7 +33,6 @@ pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
             }
      }
 }" --quiet --jsonpprintindent 4
-'
 
 #Start job
 #Create persistent volume, persistent volume claim, job object
@@ -90,7 +88,6 @@ if ((numsucceeded>0)); then
     #pullpath
    #Do pfurly things
 #pushpath
-: '
 pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
 "{\"action\": \"pullPath\",
     \"meta\": {
@@ -110,7 +107,7 @@ pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
             }
      }
 }" --quiet --jsonpprintindent 4
-'
+
 fi
 
 #Cleanup files
