@@ -1,4 +1,5 @@
 #!/bin/bash
+export KUBECONFIG=~/sa-KUBECONFIG
  
 #Fail if any line breaks
 set -e 
@@ -84,10 +85,8 @@ numsucceeded=$(oc get job $imageid -o jsonpath='{.status.succeeded}')
 numfailed=$(oc get job $imageid -o jsonpath='{.status.failed}')
 
 if ((numsucceeded>0)); then
-    #Download job results from purl/pfioh
-    #pullpath
-   #Do pfurly things
-#pushpath
+#Download job results from purl/pfioh
+#pullpath
 pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
 "{\"action\": \"pullPath\",
     \"meta\": {
