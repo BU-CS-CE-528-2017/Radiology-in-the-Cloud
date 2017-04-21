@@ -11,7 +11,7 @@ userid=$2
 jobtype=$3
 route="pfioh-radiology-in-the-cloud.128.31.26.63.xip.io"
 jobid=$userid-$(openssl rand -hex 12)
-imageid="fnndsc/pl-simplefsapp"
+imageid="172.30.249.2:5000/radiology-in-the-cloud/sample-plugin"
 
 #Do pfurly things
 #pushpath
