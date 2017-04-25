@@ -36,9 +36,10 @@ pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
      }
 }" --quiet --jsonpprintindent 4
 fi
+
 #Start job
 #Create persistent volume, persistent volume claim, job object
-oc create -f - <<EOF 
+oc create --namespace radiology-in-the-cloud -f - <<EOF 
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -69,7 +70,7 @@ spec:
 EOF
 
 #Convert template to object, and pipe standard out to standard in to create
-oc process -f ./job-template.yaml -v jobid=$jobid -v imageid=$imageid | oc create -f -
+oc process --namespace radiology-in-the-cloud -f ./job-template.yaml -v jobid=$jobid -v imageid=$imageid | oc create --namespace radiology-in-the-cloud -f -
 
 #Watch job
 #oc observe $jobid 
