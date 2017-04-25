@@ -1,5 +1,5 @@
 #!/bin/bash
-export KUBECONFIG=~/sa-kubeconfig
+export KUBECONFIG=~/sa-kubeconfig.yaml
  
 #Fail if any line breaks
 set -e 
