@@ -161,8 +161,13 @@ class Pfurl():
             self.qprint('pfurl: Command line args = %s' % sys.argv)
             if self._startFromCLI and (sys.argv) == 1: sys.exit(1)
 
-            self.col2_print("Will transmit to",     '%s://%s:%s' % (self.str_protocol, self.str_ip, self.str_port))
-
+            
+            
+            if self.str_port == '':
+                self.qprint("\n\n\nURL address provided! NOTE! All print statements except the following will inclue a port, however this is inaccurate!\n\n\n")
+                self.col2_print("Will transmit to", '%s://%s' % (self.str_protocol, self.str_ip))
+            else:
+                self.col2_print("Will transmit to",     '%s://%s:%s' % (self.str_protocol, self.str_ip, self.str_port))
 
     def man(self, **kwargs):
         """
