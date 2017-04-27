@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x
+
 export workDir="${WORKDIR:-/var/lib/chris}"
 
 if [ -d "$workDir" ]; then
