@@ -32,6 +32,7 @@ from    .message         import  Message
 # A global variable that tracks if script was started from CLI or programmatically
 Gb_startFromCLI             = False
 
+print("heyyy");
 
 class Pfurl():
 
