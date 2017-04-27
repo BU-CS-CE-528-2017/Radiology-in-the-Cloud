@@ -1,6 +1,6 @@
 #!/bin/bash
 export KUBECONFIG=~/sa-kubeconfig.yaml
- 
+
 #Fail if any line breaks
 set -e 
 #Print failed lines
@@ -10,36 +10,19 @@ set -x
 userdata=$1
 userid=$2
 jobtype=$3
-route="pfioh-radiology-in-the-cloud.128.31.26.63.xip.io"
+route=155.41.30.12:5055
+#route="pfioh-radiology-in-the-cloud.128.31.26.63.xip.io"
 jobid=$userid-$(openssl rand -hex 12)
 imageid="172.30.249.2:5000/radiology-in-the-cloud/sample-plugin"
 
-if false; then
 #pushpath
-pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
-"{\"action\": \"pushPath\",
-    \"meta\": {
-        \"remote\": {
-            \"path\":         \"/shared/$jobid\"
-        },
-        \"local\": {
-            \"path\":         \"$userdata\"
-        },
-        \"transport\": {
-            \"mechanism\":    \"compress\",
-            \"compress\": {
-                \"encoding\": \"base64\",
-                \"archive\":  \"zip\",
-                \"unpack\":   true,
-                \"cleanup\":  true
-            }
-     }
-}" --quiet --jsonpprintindent 4
-fi
+curl http://pfioh-radiology-in-the-cloud.128.31.26.63.xip.io/$jobid -F \
+"filenames=somefile" -F "somefile=@"$userdata -v -X POST
+
 
 #Start job
 #Create persistent volume, persistent volume claim, job object
-oc create --namespace radiology-in-the-cloud -f - <<EOF 
+oc -n radiology-in-the-cloud create --namespace radiology-in-the-cloud -f - <<EOF 
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -55,7 +38,7 @@ spec:
     persistentVolumeReclaimPolicy: Retain
 EOF
 
-oc create --namespace radiology-in-the-cloud -f - <<EOF
+oc -n radiology-in-the-cloud create --namespace radiology-in-the-cloud -f - <<EOF
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -70,12 +53,12 @@ spec:
 EOF
 
 #Convert template to object, and pipe standard out to standard in to create
-oc process --namespace radiology-in-the-cloud -f ./job-template.yaml -v jobid=$jobid -v imageid=$imageid | oc create --namespace radiology-in-the-cloud -f -
+oc -n radiology-in-the-cloud process --namespace radiology-in-the-cloud -f ./job-template.yaml -v jobid=$jobid -v imageid=$imageid | oc -n radiology-in-the-cloud create --namespace radiology-in-the-cloud -f -
 
 #Watch job
-#oc observe $jobid 
-while 1; do
-    numactive=$(oc get job $imageid -o jsonpath='{.status.active}')
+#oc -n radiology-in-the-cloud observe $jobid 
+while true; do
+    numactive=$(oc -n radiology-in-the-cloud get job $jobid -o jsonpath='{.status.active}')
     if ((numactive>0)); then
         sleep 5
         continue
@@ -83,36 +66,16 @@ while 1; do
     break
 done
 
-numsucceeded=$(oc get job $imageid -o jsonpath='{.status.succeeded}')
-numfailed=$(oc get job $imageid -o jsonpath='{.status.failed}')
+numsucceeded=$(oc -n radiology-in-the-cloud get job $jobid -o jsonpath='{.status.succeeded}')
+numfailed=$(oc -n radiology-in-the-cloud get job $jobid -o jsonpath='{.status.failed}')
 
 if ((numsucceeded>0)); then
 #Download job results from purl/pfioh
 #pullpath
-if false; then
-pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
-"{\"action\": \"pullPath\",
-    \"meta\": {
-        \"remote\": {
-            \"path\":         \"/shared/$jobid\"
-        },
-        \"local\": {
-            \"path\":         \"$userdata\"
-        },
-        \"transport\": {
-            \"mechanism\":    \"compress\",
-            \"compress\": {
-                \"encoding\": \"base64\",
-                \"archive\":  \"zip\",
-                \"unpack\":   true,
-                \"cleanup\":  true
-            }
-     }
-}" --quiet --jsonpprintindent 4
-fi
+curl http://pfioh-radiology-in-the-cloud.128.31.26.63.xip.io/$jobid/somefile.out
 fi
 
 #Cleanup files
-oc delete job $jobid 
-oc delete pvc $jobid
-oc delete pv $jobid
+oc -n radiology-in-the-cloud delete job $jobid 
+oc -n radiology-in-the-cloud delete pvc $jobid
+oc -n radiology-in-the-cloud delete pv $jobid
