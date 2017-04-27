@@ -20,9 +20,6 @@ objects:
                     - name: WORKDIR
                       value: /var/run/chris  
                     image: ${imageid}
-                    command:
-                    - /bin/bash
-                    - /opt/fnndsc/transform.sh
                     volumeMounts:
                     - mountPath: /var/run/chris
                       name: image-storage    

@@ -76,6 +76,6 @@ curl http://pfioh-radiology-in-the-cloud.128.31.26.63.xip.io/$jobid/somefile.out
 fi
 
 #Cleanup files
-oc -n radiology-in-the-cloud delete job $jobid 
-oc -n radiology-in-the-cloud delete pvc $jobid
-oc -n radiology-in-the-cloud delete pv $jobid
+#oc -n radiology-in-the-cloud delete job $jobid 
+#oc -n radiology-in-the-cloud delete pvc $jobid
+#oc -n radiology-in-the-cloud delete pv $jobid
