@@ -1,5 +1,4 @@
 #!/bin/bash
-source .venv/bin/activate
 export KUBECONFIG=~/sa-kubeconfig.yaml
 
 #Fail if any line breaks
