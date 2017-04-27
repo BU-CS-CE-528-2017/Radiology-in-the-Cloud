@@ -17,11 +17,10 @@
 FROM fnndsc/ubuntu-python3:latest
 MAINTAINER fnndsc "dev@babymri.org"
 
+COPY . /tmp/work
 RUN apt-get update \
-  && apt-get install -y libssl-dev libcurl4-openssl-dev bsdmainutils vim \
-  && pip3 install --prefix /usr pfioh==1.1.2
+  && apt-get install -y libssl-dev libcurl4-openssl-dev bsdmainutils \
+  && pip3 install /tmp/work
 
-COPY ./docker-entrypoint.py /dock/docker-entrypoint.py
-RUN chmod 777 /dock && chmod 777 /dock/docker-entrypoint.py
-ENTRYPOINT ["/dock/docker-entrypoint.py"]
+ENTRYPOINT ["/usr/local/bin/pfioh", "--forever"]
 EXPOSE 5055
