@@ -17,25 +17,9 @@ jobid=$userid-$(openssl rand -hex 12)
 imageid="172.30.249.2:5000/radiology-in-the-cloud/sample-plugin"
 
 #pushpath
-pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
-"{\"action\": \"pushPath\",
-    \"meta\": {
-        \"remote\": {
-            \"path\":         \"/shared/$jobid\"
-        },
-        \"local\": {
-            \"path\":         \"$userdata\"
-        },
-        \"transport\": {
-            \"mechanism\":    \"compress\",
-            \"compress\": {
-                \"encoding\": \"base64\",
-                \"archive\":  \"zip\",
-                \"unpack\":   true,
-                \"cleanup\":  true
-            }
-     }
-}" --jsonpprintindent 4
+curl http://pfioh-radiology-in-the-cloud.128.31.26.63.xip.io/$jobid -F \
+"filenames=somefile" -F "somefile=@"$userdata -v -X POST
+
 
 #Start job
 #Create persistent volume, persistent volume claim, job object
@@ -89,28 +73,10 @@ numfailed=$(oc -n radiology-in-the-cloud get job $jobid -o jsonpath='{.status.fa
 if ((numsucceeded>0)); then
 #Download job results from purl/pfioh
 #pullpath
-pfurl --verb POST --raw --http $route/api/v1/cmd --msg \
-"{\"action\": \"pullPath\",
-    \"meta\": {
-        \"remote\": {
-            \"path\":         \"/shared/$jobid\"
-        },
-        \"local\": {
-            \"path\":         \"$userdata\"
-        },
-        \"transport\": {
-            \"mechanism\":    \"compress\",
-            \"compress\": {
-                \"encoding\": \"base64\",
-                \"archive\":  \"zip\",
-                \"unpack\":   true,
-                \"cleanup\":  true
-            }
-     }
-}" --jsonpprintindent 4
+curl http://pfioh-radiology-in-the-cloud.128.31.26.63.xip.io/$jobid/somefile.out
 fi
 
 #Cleanup files
-oc -n radiology-in-the-cloud delete job $jobid 
-oc -n radiology-in-the-cloud delete pvc $jobid
-oc -n radiology-in-the-cloud delete pv $jobid
+#oc -n radiology-in-the-cloud delete job $jobid 
+#oc -n radiology-in-the-cloud delete pvc $jobid
+#oc -n radiology-in-the-cloud delete pv $jobid
