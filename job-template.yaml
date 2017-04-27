@@ -18,7 +18,7 @@ objects:
                   - name: cloudy
                     env:
                     - name: WORKDIR
-                      value: /var/run/chris
+                      value: /var/run/chris  
                     image: ${imageid}
                     volumeMounts:
                     - mountPath: /var/run/chris
