@@ -22,5 +22,5 @@ RUN apt-get update \
   && apt-get install -y libssl-dev libcurl4-openssl-dev bsdmainutils \
   && pip3 install /tmp/work
 
-ENTRYPOINT ["/usr/local/bin/pfioh", "--forever"]
+ENTRYPOINT ["/usr/local/bin/pfioh", "--forever", "--httpResponse"]
 EXPOSE 5055
