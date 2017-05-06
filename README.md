@@ -6,8 +6,9 @@ To show a proof of concept that the user can send a job to OpenShift, and get th
 Currently this project runs a sample application that reverses text files.
 1. Download oc binaries. OS-based instructions are here: https://docs.openshift.com/enterprise/3.1/cli_reference/get_started_cli.html.
 2. Clone or download this repository.
-3. Switch to ‘simulatedBackEnd’ branch (e.g. git checkout simulatedBackEnd).
-4. Run this command ./startjob.sh [filename] [userID]
+3. Open a terminal inside this project.
+4. Run 'cd simulatedBackEnd’.
+5. Run './startjob.sh [filename] [userID]'
   * filename: we have provided a sample file (test.txt).  You can also use any .txt file.
   * userID: any identifying name, all lowercase (e.g. user)
-5. The link to the output file will be displayed in the terminal.  An example of what it will look like is: pfioh-radiology-in-the-cloud.128.31.26.63.xip.io/[userID]-3c8930db6a2df7b0571fd2f8/somefile.out
+6. The link to the output file will be displayed in the terminal.  An example of what it will look like is: pfioh-radiology-in-the-cloud.128.31.26.63.xip.io/[userID]-3c8930db6a2df7b0571fd2f8/somefile.out
